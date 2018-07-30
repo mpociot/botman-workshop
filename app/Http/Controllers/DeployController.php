@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use BotMan\BotMan\Messages\Incoming\Answer;
+use BotMan\BotMan\Messages\Outgoing\Actions\Button;
+use BotMan\BotMan\Messages\Outgoing\Question;
 use GuzzleHttp\Client;
 use BotMan\BotMan\BotMan;
 
@@ -33,16 +35,19 @@ class DeployController
     {
         $projects = $this->getProjects();
 
-        $message = 'Which project do you want to deploy?' . PHP_EOL;
+        $question = Question::create('Which project do you want to deploy?')
+            ->callbackId('deploy_project');
 
         foreach ($projects as $key => $project) {
-            $message .= ++$key.')' . $project['name'] . PHP_EOL;
+            $question->addButton(
+                Button::create($project['name'])->value($project['slug'])
+            );
         }
 
-        $bot->ask($message,  function (Answer $answer) use ($projects) {
-            $key = (int)trim($answer->getText());
-            if (isset($projects[$key-1])) {
-                $this->say('You selected '.$projects[$key-1]['name']);
+        $bot->ask($question,  function (Answer $answer) {
+            if ($answer->isInteractiveMessageReply()) {
+                $this->say('Deploying '.$answer->getValue());
+
                 return;
             }
 
