@@ -1,24 +1,9 @@
 <?php
 
-use GuzzleHttp\Client;
+use App\Http\Controllers\DeployController;
 
 $botman = resolve('botman');
 
-$botman->hears('deploy {projectname}', function ($bot, $projectname) {
+$botman->hears('deploy {projectname}', DeployController::class.'@deployProject');
 
-    $client = new Client();
-    $response = $client->get('http://botman-project-api.test/api/projects');
-    $projects = collect(json_decode($response->getBody()->getContents(), true));
-
-    $project = $projects->first(function ($project) use ($projectname) {
-        return strtolower($project['name']) === $projectname;
-    });
-
-    if (is_null($project)) {
-        $bot->reply('A project called "'.$projectname.'" is not available');
-        return false;
-    }
-
-    $bot->reply('Deploying '.$project['slug']);
-
-});
+$botman->hears('deploy', DeployController::class.'@deploy');
