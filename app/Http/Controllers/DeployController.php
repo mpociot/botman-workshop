@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use BotMan\BotMan\Messages\Incoming\Answer;
-use BotMan\BotMan\Messages\Outgoing\Actions\Button;
-use BotMan\BotMan\Messages\Outgoing\Question;
 use GuzzleHttp\Client;
 use BotMan\BotMan\BotMan;
+use BotMan\BotMan\Messages\Incoming\Answer;
+use BotMan\BotMan\Messages\Outgoing\Question;
+use App\Http\Conversations\DeploymentConversation;
+use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 
 class DeployController
 {
@@ -35,27 +36,7 @@ class DeployController
     {
         $projects = $this->getProjects();
 
-        $question = Question::create('Which project do you want to deploy?')
-            ->callbackId('deploy_project');
-
-        foreach ($projects as $key => $project) {
-            $question->addButton(
-                Button::create($project['name'])->value($project['slug'])
-            );
-        }
-
-        $bot->ask($question,  function (Answer $answer) {
-            if ($answer->isInteractiveMessageReply()) {
-                $this->say('Deploying '.$answer->getValue());
-
-                return;
-            }
-
-            $this->say('Invalid selection. Please try again.');
-
-            $this->repeat();
-        });
-
+        $bot->startConversation(new DeploymentConversation($projects));
     }
 
 }
