@@ -1,9 +1,14 @@
 <?php
 
-use App\Http\Controllers\DeployController;
+use BotMan\BotMan\Middleware\Dialogflow;
 
 $botman = resolve('botman');
 
-$botman->hears('deploy {projectname}', DeployController::class.'@deployProject');
+$dialogflow = Dialogflow::create(config('services.dialogflow.token'));
 
-$botman->hears('deploy', DeployController::class.'@deploy');
+$botman->middleware->received($dialogflow);
+$botman->middleware->matching($dialogflow);
+
+$botman->hears('Feedback Intent', function ($bot) {
+    $bot->reply($bot->getMessage()->getExtras('apiReply'));
+});
