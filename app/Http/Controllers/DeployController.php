@@ -46,9 +46,7 @@ class DeployController
                 return;
             }
 
-            $this->say('Invalid selection. Please try again.');
-
-            $this->repeat();
+            $this->repeat('Invalid selection. Please try again.');
         });
 
     }
