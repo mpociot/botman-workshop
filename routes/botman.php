@@ -7,11 +7,11 @@ $botman = resolve('botman');
 $botman->hears('deploy {projectname}', function ($bot, $projectname) {
 
     $client = new Client();
-    $response = $client->get('http://botman-project-api.test/api/projects');
+    $response = $client->get('http://workshop-api.dev.beyondco.de/api/projects');
     $projects = collect(json_decode($response->getBody()->getContents(), true));
 
     $project = $projects->first(function ($project) use ($projectname) {
-        return strtolower($project['name']) === $projectname;
+        return strcasecmp($project['name'], $projectname) === 0;
     });
 
     if (is_null($project)) {
