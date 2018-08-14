@@ -43,6 +43,9 @@ class DeployController
             $key = (int)trim($answer->getText());
             if (isset($projects[$key-1])) {
                 $this->say('You selected '.$projects[$key-1]['name']);
+
+                // Deployment logic goes here...
+
                 return;
             }
 
